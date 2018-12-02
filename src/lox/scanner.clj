@@ -24,25 +24,29 @@
   ([state] (increase-current state 1))
   ([state amount] (update state :current #(+ % amount))))
 
-(defn get-current-char [{:keys [current program]}]
+(defn get-current-char
+  [{:keys [program current]}]
   (try
     (.charAt ^String program current)
     (catch StringIndexOutOfBoundsException _
       nil)))
 
 
-(defn at-end? [{:keys [current program]}]
+(defn at-end?
+  [{:keys [current program]}]
   (>= current (count program)))
 
-(defn get-next-char [state]
+(defn get-next-char
   "Returns the next char if there is one"
+  [state]
   (let [next-state (increase-current state)]
     (if-not (at-end? next-state)
       (get-current-char next-state))))
 
 
-(defn define-single-char-token [char token-type]
+(defn define-single-char-token
   "Static single char token"
+  [char token-type]
   (fn [state]
     {:type     token-type
      :lexeme   (str char)
@@ -50,11 +54,12 @@
      :position (:current state)}))
 
 
-(defn define-double-char-token [first-char second-char no-match-type match-type]
+(defn define-double-char-token
   "Token that may or may not contain 2 chars (example: < | <=)
-   If the second char matches, returns the second token"
+  If the second char matches, returns the second token"
+  [first-char second-char no-match-type match-type]
   (fn [state]
-    (if (not (= second-char (get-next-char state)))
+    (if-not (= second-char (get-next-char state))
       {:type     no-match-type
        :lexeme   (str first-char)
        :size     1
@@ -88,8 +93,9 @@
             (double-char-matcher \> \= :greater :greater-equal)]))
 
 
-(defn number-token [state]
+(defn number-token
   "Create a number token from the current state"
+  [state]
   (let [start-position (:current state)]
     (loop [state state
            number (str (get-current-char state))
@@ -108,8 +114,9 @@
                  :size     (count number)})))))
 
 
-(defn identifier [state]
+(defn identifier
   "Get the next identifier from the current state"
+  [state]
   (loop [state state
          keyword (str (get-current-char state))]
     (let [next-char (get-next-char state)]
@@ -119,9 +126,10 @@
                (str keyword next-char))
         keyword))))
 
-(defn identifier-token [state]
+(defn identifier-token
   "Create either a builtin identifier token, or if its a builtin
    a specific one"
+  [state]
   (if-let [identifier (identifier state)]
     (if (contains? builtin-keyword-map identifier)
       {:type     (builtin-keyword-map identifier)
@@ -134,8 +142,9 @@
        :size     (count identifier)})))
 
 
-(defn string [state]
+(defn string
   "Get the next string from the current position"
+  [state]
   (if (= \" (get-current-char state))
     (loop [state (increase-current state)
            string-builder ""]
@@ -147,15 +156,17 @@
 
 
 
-(defn string-token [state]
+(defn string-token
+  [state]
   (if-let [parsed-string (string state)]
     {:type :string
      :lexeme parsed-string
      :position (:current state)
      :size (+ 2 (count parsed-string))}))
 
-(defn comment-string [state]
+(defn comment-string
   "Reads till there is a next line or the is nothign left"
+  [state]
   (loop [state state
          comment-string ""]
     (let [current-char (get-current-char state)]
@@ -165,16 +176,18 @@
         comment-string
         (recur (increase-current state) (str comment-string current-char))))))
 
-(defn comment-token [state]
+(defn comment-token
   "Create a comment token"
+  [state]
   (let [comment (comment-string state)]
     {:type :comment
      :lexeme comment
      :size (count comment)
      :position (:current state)}))
 
-(defn current-token [state]
+(defn current-token
   "Returns the token at the current and the amount to increase with"
+  [state]
   (let [current-char (get-current-char state)]
     (cond
       (contains? char->token-factory current-char) (let [lookup-result (char->token-factory current-char)]
@@ -194,24 +207,28 @@
              :position (:current state)
              :size     1})))
 
-(defn insert-token [state token]
+(defn insert-token
+  [state token]
   (update state :tokens #(conj % token)))
 
-(defn remove-whitespace [state]
+(defn remove-whitespace
+  [state]
   (loop [state state]
     (let [current-char (get-current-char state)]
       (if (whitespace? current-char)
         (recur (increase-current state))
         state))))
 
-(defn add-current-token [state]
+(defn add-current-token
+  [state]
   (let [token (current-token state)]
     (-> state
         (insert-token token)
         (increase-current (:size token)))))
 
-(defn program->tokens [program]
+(defn program->tokens
   "Convert a program into tokens"
+  [program]
   (loop [state {:tokens  []
                 :program program
                 :current 0

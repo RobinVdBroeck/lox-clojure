@@ -4,7 +4,8 @@
             [clojure.pprint :refer [pprint]])
   (:import (java.io FileNotFoundException)))
 
-(defn run-program [program]
+(defn run-program
+  [program]
   (-> program
       program->tokens
       pprint))
@@ -12,7 +13,8 @@
 (def quit-strings #{"quit" ":quit" "(quit)"
                     "exit" ":exit" "(exit)"})
 
-(defn run-repl []
+(defn run-repl
+  []
   (loop []
     (print "> ")
     (flush)
@@ -23,11 +25,12 @@
           (recur))
         (println "Thanks for using Lex, have a great day")))))
 
-(defn run-file [filename]
+(defn run-file
+  [filename]
   (try
     (let [content (slurp filename)]
       (run-program content))
-    (catch FileNotFoundException e
+    (catch FileNotFoundException _
       (println "Could not read file" filename))))
 
 (defn -main

@@ -1,7 +1,8 @@
 (ns lox.util)
 
-(defn alpha? [char]
+(defn alpha?
   "Is char an alphabetic [a-zA-Z]"
+  [char]
   (if char
     (let [ichar (int char)
           a (int \a)
@@ -14,21 +15,24 @@
                    (<= ichar Z)))
         char))))
 
-(defn whitespace? [char]
-  "Is char whitespace? Newlines are not considered whitespacse"
+(defn whitespace?
+  "Is char a whitespace? Newlines are not considered whitespace"
+  [char]
   (if char
     (if (or (= \space char)
             (= \tab char))
       char)))
 
-(defn newline? [char]
-  "Is the char a newline charachter? Only \n is consider a newline."
+(defn newline?
+  "Is char a newline? Only \n is consider a newline."
+  [char]
   (if char
     (if (= \n char)
       char)))
 
-(defn digit? [char]
-  "Is a char a digit"
+(defn digit?
+  "Is a char a digit [0-9]"
+  [char]
   (if char
     (let [zero (int \0)
           nine (int \9)
