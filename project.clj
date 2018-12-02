@@ -3,7 +3,9 @@
   :url "https://github.com/RobinVdBroeck/lox-clojure"
   :license {:name "MIT"
             :url "https://github.com/RobinVdBroeck/lox-clojure/LICENSE"}
-  :dependencies [[org.clojure/clojure "1.9.0"]]
+  :dependencies [[org.clojure/clojure "1.9.0"]
+                 [org.clojure/spec.alpha "0.2.176"]
+                 [org.clojure/test.check "0.9.0"]]
 
   :main ^:skip-aot lox.core
   :target-path "target/%s"
